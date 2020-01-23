@@ -1,0 +1,11 @@
+.gitattributes export-ignore
+
+# binaries
+37dc6c67e2af26379d88ce349eb9c4c6160e8543.zip export-ignore
+minisat2-070721.zip export-ignore
+MiniSat_v1.14_src.zip export-ignore
+minisat-2.2.0.tar.gz export-ignore
+minisat2-061208.zip export-ignore
+
+# patches
+MiniSat_v37dc6c6-proof_nusmv.patch export-ignore
