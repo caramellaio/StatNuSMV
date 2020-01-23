@@ -34,6 +34,7 @@
 
 #include "nusmv/core/stat/StatProblemsGenerator.h"
 #include "nusmv/core/stat/StatProblemsGenerator_private.h"
+#include "nusmv/core/node/normalizers/MasterNormalizer.h"
 
 /*---------------------------------------------------------------------------*/
 /* Constant declarations                                                     */
@@ -62,7 +63,8 @@
 /* Static function prototypes                                                */
 /*---------------------------------------------------------------------------*/
 
-static node_ptr stat_problems_generator_gen_key(const StatTrace_ptr exec);
+static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
+                                                const StatTrace_ptr exec);
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
@@ -119,9 +121,36 @@ void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
 /* Definition of static functions                                            */
 /*---------------------------------------------------------------------------*/
 
-static node_ptr stat_problems_generator_gen_key(const StatTrace_ptr exec)
+/*!
+  /brief Generates a key using states
+
+  Note: state order and variable order is important !!!
+*/
+static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
+                                                const StatTrace_ptr exec)
 {
-  error_unreachable_code_msg("Not yet implemented!");
-  return Nil;
+  ListIter_ptr iter;
+  NodeList_ptr state_list;
+  Expr_ptr retval;
+
+  const MasterNormalizer_ptr master_norm =
+    MASTER_NORMALIZER(NuSMVEnv_get_value(env, ENV_NODE_NORMALIZER));
+  const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+
+  nusmv_assert(StatTrace_is_generated(exec));
+
+  retval = ExprMgr_true(exprs);
+
+  state_list = StatTrace_get_sexp_states(exec);
+
+  NODE_LIST_FOREACH(state_list, iter) {
+    Expr_ptr state_sexp = NodeList_get_elem_at(state_list, iter);
+
+    retval = ExprMgr_and(exprs, state_sexp, retval);
+  }
+
+  retval = MasterNormalizer_normalize_node(master_norm, retval);
+
+  return retval;
 }
 /**AutomaticEnd***************************************************************/

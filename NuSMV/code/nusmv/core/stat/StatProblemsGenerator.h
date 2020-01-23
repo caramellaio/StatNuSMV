@@ -57,7 +57,7 @@ typedef void* SimulFun;
 /*!
   \brief
 */
-typedef node_ptr (*HashKeyFun)(StatTrace_ptr);
+typedef Expr_ptr (*HashKeyFun)(const NuSMVEnv_ptr, StatTrace_ptr);
 
 /*!
   \brief To cast and check instances of class StatProblemsGenerator
