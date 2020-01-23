@@ -39,6 +39,7 @@
 #ifndef __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_H__
 #define __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_H__
 
+#include "nusmv/core/stat/stat.h"
 #include "nusmv/core/stat/StatTrace.h"
 #include "nusmv/core/utils/Olist.h"
 #include "nusmv/core/prop/Prop.h"
@@ -51,8 +52,7 @@
 */
 typedef struct StatProblemsGenerator_TAG*  StatProblemsGenerator_ptr;
 
-#warning TODO[AB]: Find a type for SimulFun
-typedef void* SimulFun;
+typedef StatTrace_ptr (*SimulFun)(StatProblemsGenerator_ptr);
 
 /*!
   \brief

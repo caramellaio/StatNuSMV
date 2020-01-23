@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
 
 
-  This file is part of the ``simulate'' package of NuSMV version 2.
+  This file is part of the ``stat'' package of NuSMV version 2.
   Copyright (C) 2012 by FBK-irst.
 
   NuSMV version 2 is free software; you can redistribute it and/or
@@ -55,6 +55,7 @@
 /*---------------------------------------------------------------------------*/
 /* Macro declarations                                                        */
 /*---------------------------------------------------------------------------*/
+#define STAT_ENV(self) (ENV_OBJECT(self)->environment)
 
 
 /**AutomaticStart*************************************************************/
@@ -62,6 +63,12 @@
 /*---------------------------------------------------------------------------*/
 /* Static function prototypes                                                */
 /*---------------------------------------------------------------------------*/
+
+static StatVericationResult
+  stat_problems_generator_verify_step(const StatProblemsGenerator_ptr self);
+
+static StatTrace_ptr
+  stat_problems_generator_simulate(StatProblemsGenerator_ptr self);
 
 static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
                                                 const StatTrace_ptr exec);
@@ -82,6 +89,28 @@ void StatProblemsGenerator_destroy(StatProblemsGenerator_ptr self)
   STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
 
   stat_problems_generator_deinit(self);
+
+  FREE(self);
+}
+
+void StatProblemsGenerator_prepare_property(StatProblemsGenerator_ptr self,
+                                            const Prop_ptr property)
+{
+  STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
+
+  stat_problems_generator_deinit(self);
+  stat_problems_generator_init(self, STAT_ENV(self));
+  self->prop = property;
+}
+
+StatVericationResult StatProblemsGenerator_verify_step(StatProblemsGenerator_ptr self)
+{
+  STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
+
+  /* A property should have been selected */
+  PROP_CHECK_INSTANCE(self->prop);
+
+  return stat_problems_generator_verify_step(self);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -98,6 +127,7 @@ void stat_problems_generator_init(StatProblemsGenerator_ptr self,
   self->prop = PROP(NULL);
 
   OVERRIDE(StatProblemsGenerator, gen_key) = stat_problems_generator_gen_key;
+  OVERRIDE(StatProblemsGenerator, simulate) = stat_problems_generator_simulate;
 }
 
 void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
@@ -120,6 +150,34 @@ void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
 /*---------------------------------------------------------------------------*/
 /* Definition of static functions                                            */
 /*---------------------------------------------------------------------------*/
+
+static StatVericationResult
+  stat_problems_generator_verify_step(const StatProblemsGenerator_ptr self)
+{
+  StatTrace_ptr new_exec = self->simulate(self);
+  Expr_ptr new_exec_key = self->gen_key(STAT_ENV(self), new_exec);
+
+  StatVericationResult res = stat_problems_verify_execution(self, new_exec);
+
+  /* We assume that it is not possible to verify twice the same execution */
+  nusmv_assert(STAT_NOT_VERIFIED ==
+               (StatVericationResult)find_assoc(self->executions_assoc,
+                                                new_exec_key));
+
+  /* Store the result */
+  insert_assoc(self->executions_assoc, new_exec_key, NODE_FROM_INT(res));
+
+  /* Add the execution to the list */
+  Olist_append(self->executions_list, (void*)new_exec);
+
+  return res;
+}
+
+static StatTrace_ptr
+  stat_problems_generator_simulate(StatProblemsGenerator_ptr self)
+{
+  error_unreachable_code_msg("Not yet implemented!\n");
+}
 
 /*!
   /brief Generates a key using states
