@@ -15,6 +15,7 @@ set(SUBDIRS
   utils
   hrc
   cmd
+  stat
   )
 
 foreach(_d ${SUBDIRS})

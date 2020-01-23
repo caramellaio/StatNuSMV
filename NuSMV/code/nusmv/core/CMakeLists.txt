@@ -23,6 +23,7 @@ set(SUBDIRS
   sexp
   hrc
   wff
+  stat
   )
 
 foreach(_d ${SUBDIRS})
