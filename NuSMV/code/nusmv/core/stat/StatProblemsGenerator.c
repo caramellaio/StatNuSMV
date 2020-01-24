@@ -70,6 +70,10 @@ static StatVericationResult
 static StatTrace_ptr
   stat_problems_generator_simulate(StatProblemsGenerator_ptr self);
 
+static StatVericationResult
+  stat_problems_generator_verify_execution(const StatProblemsGenerator_ptr self,
+                                           const StatTrace_ptr execution);
+
 static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
                                                 const StatTrace_ptr exec);
 /*---------------------------------------------------------------------------*/
@@ -157,7 +161,8 @@ static StatVericationResult
   StatTrace_ptr new_exec = self->simulate(self);
   Expr_ptr new_exec_key = self->gen_key(STAT_ENV(self), new_exec);
 
-  StatVericationResult res = stat_problems_verify_execution(self, new_exec);
+  StatVericationResult res =
+    stat_problems_generator_verify_execution(self, new_exec);
 
   /* We assume that it is not possible to verify twice the same execution */
   nusmv_assert(STAT_NOT_VERIFIED ==
@@ -171,6 +176,13 @@ static StatVericationResult
   Olist_append(self->executions_list, (void*)new_exec);
 
   return res;
+}
+
+static StatVericationResult
+  stat_problems_generator_verify_execution(const StatProblemsGenerator_ptr self,
+                                           const StatTrace_ptr execution)
+{
+  error_unreachable_code_msg("Not yet implemented!\n");
 }
 
 static StatTrace_ptr
