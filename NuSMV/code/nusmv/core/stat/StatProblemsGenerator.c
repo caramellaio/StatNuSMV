@@ -117,6 +117,21 @@ StatVericationResult StatProblemsGenerator_verify_step(StatProblemsGenerator_ptr
   return stat_problems_generator_verify_step(self);
 }
 
+StatVerificationMethod
+  StatProblemsGenerator_get_verification_method(const StatProblemsGenerator_ptr self)
+{
+  STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
+
+  return self->verification_method;
+}
+
+void StatProblemsGenerator_set_verification_method(StatProblemsGenerator_ptr self,
+                                                   StatVerificationMethod method)
+{
+  STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
+
+  self->verification_method = method;
+}
 /*---------------------------------------------------------------------------*/
 /* Definition of internal functions                                          */
 /*---------------------------------------------------------------------------*/
@@ -129,6 +144,7 @@ void stat_problems_generator_init(StatProblemsGenerator_ptr self,
   self->executions_list = Olist_create();
 
   self->prop = PROP(NULL);
+  self->verification_method = STAT_INVALID_VERIFICATION;
 
   OVERRIDE(StatProblemsGenerator, gen_key) = stat_problems_generator_gen_key;
   OVERRIDE(StatProblemsGenerator, simulate) = stat_problems_generator_simulate;
@@ -150,6 +166,8 @@ void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
 
   /* no need to destroy hash_ptr elements since they were destroyed before */
   free_assoc(self->executions_assoc); self->executions_assoc = NULL;
+
+  self->verification_method = STAT_INVALID_VERIFICATION;
 }
 /*---------------------------------------------------------------------------*/
 /* Definition of static functions                                            */

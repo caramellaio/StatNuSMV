@@ -65,6 +65,8 @@ typedef struct StatProblemsGenerator_TAG
   /* Property to be verified */
   Prop_ptr prop;
 
+  /* technique used to perform the executions verification */
+  StatVerificationMethod verification_method;
   /* -------------------------------------------------- */
   /*                  Virtual methods                   */
   /* -------------------------------------------------- */

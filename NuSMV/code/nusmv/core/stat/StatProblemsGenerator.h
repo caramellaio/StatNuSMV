@@ -59,6 +59,12 @@ typedef StatTrace_ptr (*SimulFun)(StatProblemsGenerator_ptr);
 */
 typedef Expr_ptr (*HashKeyFun)(const NuSMVEnv_ptr, StatTrace_ptr);
 
+typedef enum StatVerificationMethod_TAG {
+  STAT_INVALID_VERIFICATION = 0,
+  STAT_LTL_VERIFICATION,
+  STAT_BMC_VERIFICATION_FIXED_K,
+  STAT_BMC_VERIFICATION_NON_FIXED_K
+} StatVerificationMethod;
 /*!
   \brief To cast and check instances of class StatProblemsGenerator
 
