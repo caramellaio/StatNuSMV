@@ -22,7 +22,7 @@
   or email to <nusmv-users@fbk.eu>.
   Please report bugs to <nusmv-users@fbk.eu>.
 
-  To contact the NuSMV development board, email to <nusmv@fbk.eu>. 
+  To contact the NuSMV development board, email to <nusmv@fbk.eu>.
 
 -----------------------------------------------------------------------------*/
 
@@ -46,7 +46,7 @@
   \struct NuSMVEnv
   \brief Definition of the public accessor for class NuSMVEnv
 
-  
+
 */
 typedef struct NuSMVEnv_TAG*  NuSMVEnv_ptr;
 
@@ -290,6 +290,9 @@ typedef struct NuSMVEnv_TAG*  NuSMVEnv_ptr;
 #define ENV_MASTER_LOGIC_RECOGNIZER "+?_master_logic_recognizer"
 /* next ascii is "@" */
 
+#define ENV_STAT_PROB_GEN "stat_prob_gen"
+
+#define ENV_STAT_PROB_GEN_BMC "stat_prob_gen_bmc"
 /**AutomaticStart*************************************************************/
 
 /*---------------------------------------------------------------------------*/

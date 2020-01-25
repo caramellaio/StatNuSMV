@@ -76,4 +76,8 @@ int Stat_check_ltlspec_bmc(const NuSMVEnv_ptr env,
                            const double error_level,
                            const double confidence_level,
                            double *res);
+
+void Stat_Pkg_init(NuSMVEnv_ptr env);
+
+void Stat_Pkg_quit(NuSMVEnv_ptr env);
 #endif /* __NUSMV_CORE_STAT_STAT_H__ */
