@@ -219,6 +219,8 @@ int Stat_CommandCheckLtlspecBmc(NuSMVEnv_ptr env, int argc, char** argv)
   }
 
 
+  Stat_Pkg_init(env);
+
   if (formula != NIL(char)) {
     prop_no = PropDb_prop_parse_and_add(prop_db, st, formula, Prop_Ltl, Nil);
 
@@ -276,6 +278,8 @@ int Stat_CommandCheckLtlspecBmc(NuSMVEnv_ptr env, int argc, char** argv)
       status = 1;
     }
   }
+
+  Stat_Pkg_quit(env);
 
 stat_check_ltlspec_bmc_exit:
   if (useMore) {

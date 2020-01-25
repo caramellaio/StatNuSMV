@@ -38,6 +38,7 @@
 #include "nusmv/shell/ltl/ltlCmd.h"
 #include "nusmv/shell/fsm/bdd/bddCmd.h"
 #include "nusmv/shell/opt/optCmd.h"
+#include "nusmv/shell/stat/statCmd.h"
 
 /*---------------------------------------------------------------------------*/
 /* Constant declarations                                                     */
@@ -99,6 +100,7 @@ void CInit_init_cmd(NuSMVEnv_ptr env)
 
   Bdd_Init(env);
   Ltl_Init(env);
+  Stat_Cmd_init(env);
 
   Opt_Cmd_init(env);
 }
@@ -110,6 +112,7 @@ void CInit_quit_cmd(NuSMVEnv_ptr env)
   Hrc_quit_cmd(env);
   PropPkg_quit_cmd(env);
   Simulate_Cmd_quit(env);
+  Stat_Cmd_quit(env);
 
 #if NUSMV_HAVE_SAT_SOLVER
   Bmc_Cmd_quit(env);
