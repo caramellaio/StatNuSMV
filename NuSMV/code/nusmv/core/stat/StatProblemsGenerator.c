@@ -307,9 +307,19 @@ static StatTrace_ptr
         /* Check if we already verified this execution.
            If so do not allow loopbacks
         */
+        Expr_ptr new_key = self->gen_key(env, exec);
+
+        /* we allow the loopback if this execution have not been verified yet */
+        allow_loopback = (Nil == find_assoc(self->executions_assoc, new_key));
       }
 
       StatTrace_add_state(exec, state_sexp, allow_loopback);
+
+      /* If this execution generated the loopback we can exit from the loop */
+      if (StatTrace_is_generated(exec)) {
+        nusmv_assert(allow_loopback);
+        found = true;
+      }
     }
   }
   else {
