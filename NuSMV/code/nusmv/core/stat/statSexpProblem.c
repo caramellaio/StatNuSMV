@@ -37,6 +37,7 @@
 #include "nusmv/core/wff/ExprMgr.h"
 #include "nusmv/core/node/NodeMgr.h"
 #include "nusmv/core/parser/symbols.h"
+#include "nusmv/core/compile/compile.h"
 
 /*---------------------------------------------------------------------------*/
 /* Type declarations                                                         */
@@ -57,6 +58,45 @@
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
+
+SymbLayer_ptr StatSexpProblem_prepare_layer(const NuSMVEnv_ptr env,
+                                            SymbTable_ptr symb_table,
+                                            const Expr_ptr counter_var,
+                                            const int k)
+{
+  const NodeMgr_ptr nodemgr = NODE_MGR(NuSMVEnv_get_value(env, ENV_NODE_MGR));
+  const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+
+  SymbLayer_ptr retval =
+    SymbTable_create_layer(symb_table, NULL, SYMB_LAYER_POS_BOTTOM);
+
+  /* symbol type: 1 .. k */
+  SymbType_ptr counter_type =
+    Compile_InstantiateType(symb_table, retval, counter_var,
+                            new_node(nodemgr, TWODOTS,
+                                     ExprMgr_number(exprs, 1),
+                                     ExprMgr_number(exprs, k)),
+                            NULL, false);
+
+  if (! Compile_DeclareVariable(symb_table, retval, counter_var, counter_type,
+                                NULL, State_Variables_Instantiation_Mode)) {
+    error_unreachable_code_msg("This should not happen!!! \n");
+  }
+
+  return retval;
+}
+
+void StatSexpProblem_destroy_layer(const NuSMVEnv_ptr env,
+                                   SymbTable_ptr symb_table,
+                                   SymbLayer_ptr layer)
+{
+  const char* layer_name = SymbLayer_get_name(layer);
+
+  nusmv_assert(SymbTable_has_layer(symb_table, layer_name));
+
+  SymbTable_remove_layer(symb_table, layer_name);
+}
+
 Prop_ptr StatSexpProblem_gen_problem(const NuSMVEnv_ptr env,
                                      const StatTrace_ptr stat_trace,
                                      const Expr_ptr counter_var,

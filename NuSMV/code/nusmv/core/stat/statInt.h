@@ -48,6 +48,15 @@
 /* Function prototypes                                                       */
 /*---------------------------------------------------------------------------*/
 
+SymbLayer_ptr StatSexpProblem_prepare_layer(const NuSMVEnv_ptr env,
+                                            SymbTable_ptr symb_table,
+                                            const Expr_ptr counter_var,
+                                            const int k);
+
+void StatSexpProblem_destroy_layer(const NuSMVEnv_ptr env,
+                                   SymbTable_ptr symb_table,
+                                   SymbLayer_ptr layer);
+
 Prop_ptr StatSexpProblem_gen_problem(const NuSMVEnv_ptr env,
                                      const StatTrace_ptr stat_trace,
                                      const Expr_ptr counter_var,
