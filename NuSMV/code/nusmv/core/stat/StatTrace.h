@@ -82,7 +82,7 @@ typedef struct StatTrace_TAG* StatTrace_ptr;
 
   \sa StatTrace_destroy
 */
-StatTrace_ptr StatTrace_create(const Trace_ptr gen_trace);
+StatTrace_ptr StatTrace_create(void);
 
 /* Destructors ****************************************************************/
 
@@ -134,7 +134,14 @@ boolean StatTrace_is_generated(const StatTrace_ptr self);
   \brief Getter for loopback
 
 */
-unsigned int StatTrace_get_loopback(const StatTrace_ptr self);
+int StatTrace_get_loopback(const StatTrace_ptr self);
+
+/*!
+  \methodof StatTrace
+  \brief Getter for trace length
+
+*/
+int StatTrace_get_length(const StatTrace_ptr self);
 
 /*!
   \methodof StatTrace

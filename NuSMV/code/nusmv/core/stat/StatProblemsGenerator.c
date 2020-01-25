@@ -263,7 +263,7 @@ static StatTrace_ptr
   DDMgr_ptr dd = BddEnc_get_dd_manager(enc);
 
   /* TODO[AB]: Trace is not necessary, remove the field */
-  StatTrace_ptr exec = StatTrace_create(TRACE(NULL));
+  StatTrace_ptr exec = StatTrace_create();
 
   if (0 == Simulate_pick_state(env, TRACE_LABEL_INVALID, Random,
                                0, false, NULL)) {

@@ -66,11 +66,11 @@
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
 
-StatTrace_ptr StatTrace_create(const Trace_ptr gen_trace)
+StatTrace_ptr StatTrace_create(void)
 {
   StatTrace_ptr self = ALLOC(StatTrace, 1);
 
-  stat_trace_init(self, gen_trace);
+  stat_trace_init(self);
 
   return self;
 }
@@ -137,23 +137,27 @@ NodeList_ptr StatTrace_get_sexp_states(const StatTrace_ptr self)
   return self->sexp_state_list;
 }
 
-unsigned int StatTrace_get_loopback(const StatTrace_ptr self)
+int StatTrace_get_loopback(const StatTrace_ptr self)
 {
   STAT_TRACE_CHECK_INSTANCE(self);
 
   return self->loopback;
 }
+
+int StatTrace_get_length(const StatTrace_ptr self)
+{
+  STAT_TRACE_CHECK_INSTANCE(self);
+
+  return NodeList_get_length(self->sexp_state_list);
+}
 /*---------------------------------------------------------------------------*/
 /* Definition of internal functions                                          */
 /*---------------------------------------------------------------------------*/
 
-void stat_trace_init(StatTrace_ptr self,
-                     const Trace_ptr gen_trace)
+void stat_trace_init(StatTrace_ptr self)
 {
   self->generated = false;
-  self->loopback = 0;
-
-  self->generator_trace = gen_trace;
+  self->loopback = -1;
 
   self->sexp_state_list = NodeList_create();
   self->sexp_state_assoc = new_assoc();
@@ -165,10 +169,7 @@ void stat_trace_deinit(StatTrace_ptr self)
   free_assoc(self->sexp_state_assoc); self->sexp_state_assoc = NULL;
 
   self->generated = false;
-  self->loopback = 0;
-
-  /* Trace is just a reference */
-  self->generator_trace = TRACE(NULL);
+  self->loopback = -1;
 }
 /*---------------------------------------------------------------------------*/
 /* Definition of static functions                                            */

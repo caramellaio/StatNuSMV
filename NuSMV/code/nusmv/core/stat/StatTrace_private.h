@@ -47,9 +47,7 @@ typedef struct StatTrace_TAG {
   /* -------------------------------------------------- */
   /*                  Private members                   */
   /* -------------------------------------------------- */
-  Trace_ptr generator_trace;
-
-  unsigned int loopback;
+  int loopback;
   NodeList_ptr sexp_state_list;
   hash_ptr sexp_state_assoc;
 
@@ -60,8 +58,7 @@ typedef struct StatTrace_TAG {
 /* Private methods to be used by derivated and friend classes only         */
 /* ---------------------------------------------------------------------- */
 
-void stat_trace_init(StatTrace_ptr self,
-                     const Trace_ptr gen_trace);
+void stat_trace_init(StatTrace_ptr self);
 
 void stat_trace_deinit(StatTrace_ptr self);
 #endif /* __NUSMV_CORE_STAT_STAT_TRACE_PRIVATE_H__ */
