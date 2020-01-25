@@ -34,6 +34,7 @@
 
 #include "nusmv/core/stat/StatProblemsGenerator.h"
 #include "nusmv/core/stat/StatProblemsGenerator_private.h"
+#include "nusmv/core/stat/statInt.h"
 
 /* Used to generate the key. */
 #include "nusmv/core/node/normalizers/MasterNormalizer.h"
@@ -61,6 +62,8 @@
 /*---------------------------------------------------------------------------*/
 /* Variable declarations                                                     */
 /*---------------------------------------------------------------------------*/
+
+#define STAT_COUNTER_VAR_NAME "__GENERATED_COUNTER_VAR__"
 
 /*---------------------------------------------------------------------------*/
 /* Macro declarations                                                        */
@@ -148,6 +151,8 @@ void StatProblemsGenerator_set_verification_method(StatProblemsGenerator_ptr sel
 void stat_problems_generator_init(StatProblemsGenerator_ptr self,
                                   const NuSMVEnv_ptr env)
 {
+  SymbTable_ptr st = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
+
   env_object_init(ENV_OBJECT(self), env);
 
   self->executions_assoc = new_assoc();
@@ -155,6 +160,8 @@ void stat_problems_generator_init(StatProblemsGenerator_ptr self,
 
   self->prop = PROP(NULL);
   self->verification_method = STAT_INVALID_VERIFICATION;
+  self->counter_var =
+    SymbTable_get_fresh_symbol_name(st, STAT_COUNTER_VAR_NAME);
 
   OVERRIDE(StatProblemsGenerator, gen_key) = stat_problems_generator_gen_key;
   OVERRIDE(StatProblemsGenerator, simulate) = stat_problems_generator_simulate;
@@ -173,6 +180,8 @@ void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
   }
 
   Olist_destroy(self->executions_list); self->executions_list = NULL;
+
+  self->counter_var = Nil;
 
   /* no need to destroy hash_ptr elements since they were destroyed before */
   free_assoc(self->executions_assoc); self->executions_assoc = NULL;
@@ -211,18 +220,20 @@ static StatVericationResult
                                            const StatTrace_ptr execution)
 {
   StatVericationResult res = STAT_INTERNAL_ERROR;
-  FlatHierarchy_ptr generated_fh =
-    stat_trace_to_flat_hierarchy(self, execution);
+  const NuSMVEnv_ptr env = STAT_ENV(self);
+  SymbTable_ptr symb_table = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
+
+  SymbLayer_ptr layer =
+    StatSexpProblem_prepare_layer(env, symb_table, self->counter_var,
+                                  StatTrace_get_length(execution));
+
+  Prop_ptr to_verify =
+    StatSexpProblem_gen_problem(env, execution, self->counter_var, self->prop);
 
   if (STAT_LTL_VERIFICATION == self->verification_method) {
-    const FlatHierarchy_ptr env_fh =
-      FLAT_HIERARCHY(NuSMVEnv_get_value(STAT_ENV(self), ENV_FLAT_HIERARCHY));
+    Prop_verify(to_verify);
 
-    NuSMVEnv_set_or_replace_value(STAT_ENV(self), ENV_FLAT_HIERARCHY, generated_fh);
-
-    Prop_verify(self->prop);
-
-    switch(Prop_get_status(self->prop)) {
+    switch(Prop_get_status(to_verify)) {
       case Prop_True:
         res = STAT_OK;
         break;
@@ -234,18 +245,12 @@ static StatVericationResult
         res = STAT_INTERNAL_ERROR;
         break;
     }
-
-    /* restore property result */
-    Prop_set_status(self->prop, Prop_Unchecked);
-
-    /* restore flatten hierarchy */
-    NuSMVEnv_set_or_replace_value(STAT_ENV(self), ENV_FLAT_HIERARCHY, env_fh);
   }
   else {
     error_unreachable_code_msg("Not yet implemented!\n");
   }
 
-  FlatHierarchy_destroy(generated_fh);
+  StatSexpProblem_destroy_layer(env, symb_table, layer);
 }
 
 
@@ -262,7 +267,6 @@ static StatTrace_ptr
 
   DDMgr_ptr dd = BddEnc_get_dd_manager(enc);
 
-  /* TODO[AB]: Trace is not necessary, remove the field */
   StatTrace_ptr exec = StatTrace_create();
 
   if (0 == Simulate_pick_state(env, TRACE_LABEL_INVALID, Random,
