@@ -113,4 +113,16 @@ StatProblemsGenerator_ptr StatProblemsGenerator_create(const NuSMVEnv_ptr env);
   \sa StatProblemsGenerator_create
 */
 void StatProblemsGenerator_destroy(StatProblemsGenerator_ptr self);
+
+
+void StatProblemsGenerator_prepare_property(StatProblemsGenerator_ptr self,
+                                            const Prop_ptr property);
+
+StatVericationResult StatProblemsGenerator_verify_step(StatProblemsGenerator_ptr self);
+
+void StatProblemsGenerator_set_verification_method(StatProblemsGenerator_ptr self,
+                                                   StatVerificationMethod method);
+
+StatVerificationMethod
+  StatProblemsGenerator_get_verification_method(const StatProblemsGenerator_ptr self);
 #endif /* __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_H__ */

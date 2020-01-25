@@ -34,7 +34,17 @@
 
 #include "nusmv/core/stat/StatProblemsGenerator.h"
 #include "nusmv/core/stat/StatProblemsGenerator_private.h"
+
+/* Used to generate the key. */
 #include "nusmv/core/node/normalizers/MasterNormalizer.h"
+
+/* Used to perform random simulation */
+#include "nusmv/core/simulate/simulate.h"
+
+/* Trace are required to collect steps from the simulation */
+#include "nusmv/core/trace/Trace.h"
+#include "nusmv/core/trace/Trace.h"
+#include "nusmv/core/trace/pkg_trace.h"
 
 /*---------------------------------------------------------------------------*/
 /* Constant declarations                                                     */
@@ -200,13 +210,113 @@ static StatVericationResult
   stat_problems_generator_verify_execution(const StatProblemsGenerator_ptr self,
                                            const StatTrace_ptr execution)
 {
-  error_unreachable_code_msg("Not yet implemented!\n");
+  StatVericationResult res = STAT_INTERNAL_ERROR;
+  FlatHierarchy_ptr generated_fh =
+    stat_trace_to_flat_hierarchy(self, execution);
+
+  if (STAT_LTL_VERIFICATION == self->verification_method) {
+    const FlatHierarchy_ptr env_fh =
+      FLAT_HIERARCHY(NuSMVEnv_get_value(STAT_ENV(self), ENV_FLAT_HIERARCHY));
+
+    NuSMVEnv_set_or_replace_value(STAT_ENV(self), ENV_FLAT_HIERARCHY, generated_fh);
+
+    Prop_verify(self->prop);
+
+    switch(Prop_get_status(self->prop)) {
+      case Prop_True:
+        res = STAT_OK;
+        break;
+      case Prop_False:
+        res = STAT_NOT_OK;
+        break;
+
+      default:
+        res = STAT_INTERNAL_ERROR;
+        break;
+    }
+
+    /* restore property result */
+    Prop_set_status(self->prop, Prop_Unchecked);
+
+    /* restore flatten hierarchy */
+    NuSMVEnv_set_or_replace_value(STAT_ENV(self), ENV_FLAT_HIERARCHY, env_fh);
+  }
+  else {
+    error_unreachable_code_msg("Not yet implemented!\n");
+  }
+
+  FlatHierarchy_destroy(generated_fh);
 }
+
 
 static StatTrace_ptr
   stat_problems_generator_simulate(StatProblemsGenerator_ptr self)
 {
-  error_unreachable_code_msg("Not yet implemented!\n");
+  /* TODO[AB]: This function prints undesired output, fix it */
+  const NuSMVEnv_ptr env = STAT_ENV(self);
+  const BddEnc_ptr enc = BDD_ENC(NuSMVEnv_get_value(env, ENV_BDD_ENCODER));
+  const TraceMgr_ptr tm =
+    TRACE_MGR(NuSMVEnv_get_value(env, ENV_TRACE_MGR));
+  const MasterNormalizer_ptr master_norm =
+    MASTER_NORMALIZER(NuSMVEnv_get_value(env, ENV_NODE_NORMALIZER));
+
+  DDMgr_ptr dd = BddEnc_get_dd_manager(enc);
+
+  /* TODO[AB]: Trace is not necessary, remove the field */
+  StatTrace_ptr exec = StatTrace_create(TRACE(NULL));
+
+  if (0 == Simulate_pick_state(env, TRACE_LABEL_INVALID, Random,
+                               0, false, NULL)) {
+    boolean found = false;
+    const int trace_id = TraceMgr_get_current_trace_number(tm);
+    const Trace_ptr curr_trace = TraceMgr_get_trace_at_index(tm, trace_id);
+
+    /* (0) Encode initial state */
+    Expr_ptr init_sexp =
+      TraceUtils_fetch_as_sexp(curr_trace, Trace_first_iter(curr_trace),
+                               TRACE_ITER_SF_VARS);
+
+    init_sexp = MasterNormalizer_normalize_node(master_norm, init_sexp);
+
+    /* No loopback in the first state */
+    StatTrace_add_state(exec, init_sexp, false);
+
+    while (! found) {
+      Expr_ptr state_sexp = Nil;
+      boolean allow_loopback = true;
+
+      /* (1.1) Launch single step simulation */
+      int status = Simulate_simulate(env, false, Random, 1, 0,
+                                     false, false, bdd_true(dd));
+
+      if (0 != status) {
+        error_unreachable_code_msg("Error handling not yet implemented!!!\n");
+      }
+
+      /* (1.2) Collect state sexp */
+      state_sexp =
+        TraceUtils_fetch_as_sexp(curr_trace,
+                                 Trace_last_iter(curr_trace),
+                                 TRACE_ITER_ALL_VARS);
+      state_sexp = MasterNormalizer_normalize_node(master_norm, state_sexp);
+
+      /* (1.3) Add state sexp to StatTrace */
+
+      /* case we find an already visited state */
+      if (StatTrace_has_state(exec, state_sexp)) {
+        /* Check if we already verified this execution.
+           If so do not allow loopbacks
+        */
+      }
+
+      StatTrace_add_state(exec, state_sexp, allow_loopback);
+    }
+  }
+  else {
+    error_unreachable_code_msg("Error handling not yet implemented!!!\n");
+  }
+
+  return exec;
 }
 
 /*!
