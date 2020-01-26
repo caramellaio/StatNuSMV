@@ -211,7 +211,10 @@ static boolean verify_single_simulation(const NuSMVEnv_ptr env,
   StatProblemsGenerator_ptr prob_gen =
     STAT_PROBLEMS_GENERATOR(NuSMVEnv_get_value(env, ENV_STAT_PROB_GEN));
 
-  StatProblemsGenerator_prepare_property(prob_gen, ltl_prop);
+  /* The property is prepared if it was not done before */
+  if (ltl_prop != StatProblemsGenerator_get_prop(prob_gen)) {
+    StatProblemsGenerator_prepare_property(prob_gen, ltl_prop);
+  }
 
   res = StatProblemsGenerator_verify_step(prob_gen);
 

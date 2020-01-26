@@ -120,6 +120,13 @@ void StatProblemsGenerator_prepare_property(StatProblemsGenerator_ptr self,
   self->prop = property;
 }
 
+Prop_ptr StatProblemsGenerator_get_prop(const StatProblemsGenerator_ptr self)
+{
+  STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
+
+  return self->prop;
+}
+
 StatVericationResult StatProblemsGenerator_verify_step(StatProblemsGenerator_ptr self)
 {
   STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);

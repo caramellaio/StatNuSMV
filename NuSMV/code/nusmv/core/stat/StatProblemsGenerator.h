@@ -118,6 +118,8 @@ void StatProblemsGenerator_destroy(StatProblemsGenerator_ptr self);
 void StatProblemsGenerator_prepare_property(StatProblemsGenerator_ptr self,
                                             const Prop_ptr property);
 
+Prop_ptr StatProblemsGenerator_get_prop(const StatProblemsGenerator_ptr self);
+
 StatVericationResult StatProblemsGenerator_verify_step(StatProblemsGenerator_ptr self);
 
 void StatProblemsGenerator_set_verification_method(StatProblemsGenerator_ptr self,
