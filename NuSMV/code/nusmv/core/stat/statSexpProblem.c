@@ -220,8 +220,11 @@ Prop_ptr StatSexpProblem_gen_single_state_problem(const NuSMVEnv_ptr env,
   iter = NodeList_get_first_iter(sexp_state_list);
   state_sexp = NodeList_get_elem_at(sexp_state_list, iter);
 
-  final_formula = ExprMgr_and(exprs, Prop_get_expr_core(prop),
-                              find_node(nodemgr, OP_GLOBAL, state_sexp, Nil));
+  /* G (state_sexp) -> property */
+  final_formula =
+    ExprMgr_implies(exprs,
+                    find_node(nodemgr, OP_GLOBAL, state_sexp, Nil),
+                    Prop_get_expr_core(prop));
 
   return Prop_create_partial(env, final_formula, Prop_Ltl);
 }
