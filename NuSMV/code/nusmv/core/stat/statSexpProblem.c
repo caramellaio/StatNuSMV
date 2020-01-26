@@ -156,7 +156,8 @@ Prop_ptr StatSexpProblem_gen_problem(const NuSMVEnv_ptr env,
     Expr_ptr case_not_k =
       ExprMgr_implies(exprs, ExprMgr_not(exprs, counter_is_k),
                       find_node(nodemgr, EQUAL, next_counter_var,
-                                    ExprMgr_plus_one(exprs, counter_var)));
+                                    ExprMgr_plus(exprs, counter_var,
+                                                 ExprMgr_number(exprs, 1))));
 
     counter_next = ExprMgr_and(exprs, case_k, case_not_k);
   }
