@@ -201,3 +201,27 @@ Prop_ptr StatSexpProblem_gen_problem(const NuSMVEnv_ptr env,
 
   return Prop_create_partial(env, final_formula, Prop_Ltl);
 }
+
+Prop_ptr StatSexpProblem_gen_single_state_problem(const NuSMVEnv_ptr env,
+                                                  const StatTrace_ptr execution,
+                                                  const Prop_ptr prop)
+{
+  NodeList_ptr sexp_state_list;
+  ListIter_ptr iter;
+  Expr_ptr state_sexp, final_formula;
+
+  const NodeMgr_ptr nodemgr = NODE_MGR(NuSMVEnv_get_value(env, ENV_NODE_MGR));
+  const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+
+  nusmv_assert(StatTrace_get_length(execution) == 1);
+  nusmv_assert(Prop_get_type(prop) == Prop_Ltl);
+
+  sexp_state_list = StatTrace_get_sexp_states(execution);
+  iter = NodeList_get_first_iter(sexp_state_list);
+  state_sexp = NodeList_get_elem_at(sexp_state_list, iter);
+
+  final_formula = ExprMgr_and(exprs, Prop_get_expr_core(prop),
+                              find_node(nodemgr, OP_GLOBAL, state_sexp, Nil));
+
+  return Prop_create_partial(env, final_formula, Prop_Ltl);
+}

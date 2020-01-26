@@ -159,7 +159,7 @@ void stat_problems_generator_init(StatProblemsGenerator_ptr self,
   self->executions_list = Olist_create();
 
   self->prop = PROP(NULL);
-  self->verification_method = STAT_INVALID_VERIFICATION;
+  self->verification_method = STAT_LTL_VERIFICATION;
   self->counter_var =
     SymbTable_get_fresh_symbol_name(st, STAT_COUNTER_VAR_NAME);
 
@@ -223,12 +223,26 @@ static StatVericationResult
   const NuSMVEnv_ptr env = STAT_ENV(self);
   SymbTable_ptr symb_table = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
 
-  SymbLayer_ptr layer =
-    StatSexpProblem_prepare_layer(env, symb_table, self->counter_var,
-                                  StatTrace_get_length(execution));
+  Prop_ptr to_verify = NULL;
+  SymbLayer_ptr layer = NULL;
+  int k = StatTrace_get_length(execution);
 
-  Prop_ptr to_verify =
-    StatSexpProblem_gen_problem(env, execution, self->counter_var, self->prop);
+  nusmv_assert(0 < k);
+
+
+  /* case the execution is a single state loop */
+  if (1 == k) {
+    to_verify =
+      StatSexpProblem_gen_single_state_problem(env, execution, self->prop);
+  }
+  else {
+    /* multiple state verification requires counter var */
+    layer =
+      StatSexpProblem_prepare_layer(env, symb_table, self->counter_var, k);
+
+    to_verify =
+      StatSexpProblem_gen_problem(env, execution, self->counter_var, self->prop);
+  }
 
   if (STAT_LTL_VERIFICATION == self->verification_method) {
     Prop_verify(to_verify);
@@ -250,7 +264,12 @@ static StatVericationResult
     error_unreachable_code_msg("Not yet implemented!\n");
   }
 
-  StatSexpProblem_destroy_layer(env, symb_table, layer);
+  if (NULL != layer) {
+    StatSexpProblem_destroy_layer(env, symb_table, layer);
+    layer = NULL;
+  }
+
+  return res;
 }
 
 
