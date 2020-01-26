@@ -119,7 +119,7 @@ int Stat_CommandCheckLtlspecBmc(NuSMVEnv_ptr env, int argc, char** argv)
   delta = STAT_CMD_DEFAULT_DELTA;
 
   util_getopt_reset();
-  while ((c = util_getopt(argc,argv,"hmo:n:p:P:")) != EOF) {
+  while ((c = util_getopt(argc,argv,"hmo:n:p:P:d:e:")) != EOF) {
 
     switch (c) {
     case 'h': return UsageStatCheckLtlspec(env);
@@ -329,7 +329,7 @@ int Stat_CommandCheckLtlspec(NuSMVEnv_ptr env, int argc, char** argv)
   delta = STAT_CMD_DEFAULT_DELTA;
 
   util_getopt_reset();
-  while ((c = util_getopt(argc,argv,"hmo:n:p:P:")) != EOF) {
+  while ((c = util_getopt(argc,argv,"hmo:n:p:P:d:e:")) != EOF) {
 
     switch (c) {
     case 'h': return UsageStatCheckLtlspec(env);
