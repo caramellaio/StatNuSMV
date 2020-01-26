@@ -428,6 +428,8 @@ int Stat_CommandCheckLtlspec(NuSMVEnv_ptr env, int argc, char** argv)
     }
   }
 
+  Stat_Pkg_init(env);
+
   if (formula != NIL(char)) {
     prop_no = PropDb_prop_parse_and_add(prop_db, st,
                                         formula, Prop_Ltl, Nil);
@@ -506,6 +508,8 @@ stat_check_ltlspec_exit:
 
     outstream = (FILE*)NULL;
   }
+
+  Stat_Pkg_quit(env);
 
   return status;
 }

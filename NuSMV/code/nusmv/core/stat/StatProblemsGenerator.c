@@ -305,19 +305,22 @@ static StatTrace_ptr
       state_sexp = MasterNormalizer_normalize_node(master_norm, state_sexp);
 
       /* (1.3) Add state sexp to StatTrace */
+      StatTrace_add_state(exec, state_sexp, true);
 
       /* case we find an already visited state */
-      if (StatTrace_has_state(exec, state_sexp)) {
+      if (StatTrace_is_generated(exec)) {
         /* Check if we already verified this execution.
            If so do not allow loopbacks
         */
         Expr_ptr new_key = self->gen_key(env, exec);
 
         /* we allow the loopback if this execution have not been verified yet */
-        allow_loopback = (Nil == find_assoc(self->executions_assoc, new_key));
+        if (Nil != find_assoc(self->executions_assoc, new_key)) {
+          StatTrace_remove_loopback(exec);
+          StatTrace_add_state(exec, state_sexp, false);
+        }
       }
 
-      StatTrace_add_state(exec, state_sexp, allow_loopback);
 
       /* If this execution generated the loopback we can exit from the loop */
       if (StatTrace_is_generated(exec)) {
@@ -361,6 +364,8 @@ static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
     retval = ExprMgr_and(exprs, state_sexp, retval);
   }
 
+  retval =
+    ExprMgr_and(exprs, ExprMgr_number(exprs, StatTrace_get_loopback(exec)), retval);
   retval = MasterNormalizer_normalize_node(master_norm, retval);
 
   return retval;

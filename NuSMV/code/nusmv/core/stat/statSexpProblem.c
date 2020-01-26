@@ -39,6 +39,8 @@
 #include "nusmv/core/parser/symbols.h"
 #include "nusmv/core/compile/compile.h"
 
+#include "nusmv/core/utils/error.h" /* for error_unreachable_code_msg */
+
 /*---------------------------------------------------------------------------*/
 /* Type declarations                                                         */
 /*---------------------------------------------------------------------------*/

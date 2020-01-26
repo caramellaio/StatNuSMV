@@ -120,7 +120,18 @@ void StatTrace_add_state(const StatTrace_ptr self,
     state++; /* + 1 is for find_assoc */
 
     insert_assoc(self->sexp_state_assoc, state_sexp, NODE_FROM_INT(state));
+    NodeList_append(self->sexp_state_list, state_sexp);
   }
+}
+
+void StatTrace_remove_loopback(const StatTrace_ptr self)
+{
+  STAT_TRACE_CHECK_INSTANCE(self);
+
+  nusmv_assert(self->generated);
+
+  self->loopback = -1;
+  self->generated = false;
 }
 
 boolean StatTrace_is_generated(const StatTrace_ptr self)

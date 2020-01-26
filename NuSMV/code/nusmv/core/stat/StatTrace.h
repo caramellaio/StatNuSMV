@@ -138,6 +138,13 @@ int StatTrace_get_loopback(const StatTrace_ptr self);
 
 /*!
   \methodof StatTrace
+  \brief Remove the trace loopback and the generated flag
+
+*/
+void StatTrace_remove_loopback(const StatTrace_ptr self);
+
+/*!
+  \methodof StatTrace
   \brief Getter for trace length
 
 */
