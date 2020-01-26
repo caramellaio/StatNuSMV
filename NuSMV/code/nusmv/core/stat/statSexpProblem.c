@@ -68,12 +68,19 @@ SymbLayer_ptr StatSexpProblem_prepare_layer(const NuSMVEnv_ptr env,
 {
   const NodeMgr_ptr nodemgr = NODE_MGR(NuSMVEnv_get_value(env, ENV_NODE_MGR));
   const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+  const BoolEnc_ptr bool_enc = BOOL_ENC(NuSMVEnv_get_value(env, ENV_BOOL_ENCODER));
+  //const BeEnc_ptr be_enc = BE_ENC(NuSMVEnv_get_value(env, ENV_BE_ENCODER));
+  const BddEnc_ptr bdd_enc = BDD_ENC(NuSMVEnv_get_value(env, ENV_BDD_ENCODER));
 
-  SymbLayer_ptr retval =
-    SymbTable_create_layer(symb_table, NULL, SYMB_LAYER_POS_BOTTOM);
+  SymbLayer_ptr retval;
+  SymbType_ptr counter_type;
+
+  nusmv_assert(1 < k);
+
+  retval = SymbTable_create_layer(symb_table, NULL, SYMB_LAYER_POS_BOTTOM);
 
   /* symbol type: 1 .. k */
-  SymbType_ptr counter_type =
+  counter_type =
     Compile_InstantiateType(symb_table, retval, counter_var,
                             new_node(nodemgr, TWODOTS,
                                      ExprMgr_number(exprs, 1),
@@ -85,18 +92,32 @@ SymbLayer_ptr StatSexpProblem_prepare_layer(const NuSMVEnv_ptr env,
     error_unreachable_code_msg("This should not happen!!! \n");
   }
 
+
+  BaseEnc_commit_layer(BASE_ENC(bool_enc), SymbLayer_get_name(retval));
+  //BaseEnc_commit_layer(BASE_ENC(be_enc), SymbLayer_get_name(retval));
+  BaseEnc_commit_layer(BASE_ENC(bdd_enc), SymbLayer_get_name(retval));
+
   return retval;
+
 }
 
 void StatSexpProblem_destroy_layer(const NuSMVEnv_ptr env,
                                    SymbTable_ptr symb_table,
                                    SymbLayer_ptr layer)
 {
+  const BoolEnc_ptr bool_enc = BOOL_ENC(NuSMVEnv_get_value(env, ENV_BOOL_ENCODER));
+  //const BeEnc_ptr be_enc = BE_ENC(NuSMVEnv_get_value(env, ENV_BE_ENCODER));
+  const BddEnc_ptr bdd_enc = BDD_ENC(NuSMVEnv_get_value(env, ENV_BDD_ENCODER));
+
   const char* layer_name = SymbLayer_get_name(layer);
 
   nusmv_assert(SymbTable_has_layer(symb_table, layer_name));
 
-  SymbTable_remove_layer(symb_table, layer_name);
+  BaseEnc_remove_layer(BASE_ENC(bdd_enc), layer_name);
+  //BaseEnc_remove_layer(BASE_ENC(be_enc), layer_name);
+  BaseEnc_remove_layer(BASE_ENC(bool_enc), layer_name);
+
+  SymbTable_remove_layer(symb_table, layer);
 }
 
 Prop_ptr StatSexpProblem_gen_problem(const NuSMVEnv_ptr env,
