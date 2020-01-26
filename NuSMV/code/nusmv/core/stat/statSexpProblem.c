@@ -177,12 +177,12 @@ Prop_ptr StatSexpProblem_gen_problem(const NuSMVEnv_ptr env,
       /* counter_var = i */
       Expr_ptr counter_var_is_i =
         find_node(nodemgr, EQUAL, counter_var, ExprMgr_number(exprs, counter_val));
-      /* sexp_state iff counter_var_is_i */
-      Expr_ptr iff_expr = ExprMgr_iff(exprs, sexp_state, counter_var_is_i);
+      /* counter_var_is_i implies sexp_state */
+      Expr_ptr counter_i_expr = ExprMgr_implies(exprs, counter_var_is_i, sexp_state);
 
       /* apply conjunction */
       state_counter_mapping =
-        ExprMgr_and(exprs, iff_expr, state_counter_mapping);
+        ExprMgr_and(exprs, counter_i_expr, state_counter_mapping);
       counter_val++;
     }
 
