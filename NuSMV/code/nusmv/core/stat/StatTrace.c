@@ -105,10 +105,9 @@ void StatTrace_add_state(const StatTrace_ptr self,
       nusmv_assert(0 < loopback);
 
       add_new_state = false;
-      loopback--; /* 0 is a valid loopback but find_assoc does not allow 0 */
 
       /* update internal informations */
-      self->loopback = (unsigned int)loopback;
+      self->loopback = loopback;
       self->generated = true;
     }
   }
