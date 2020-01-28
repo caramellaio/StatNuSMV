@@ -253,10 +253,15 @@ Prop_ptr StatSexpProblem_gen_bmc_problem(const NuSMVEnv_ptr env,
     NODE_LIST_FOREACH(state_sexp_list, iter) {
       Expr_ptr sexp_state = NodeList_get_elem_at(state_sexp_list, iter);
 
-      /* state_ith & X (final_formula) */
-      final_formula =
-        ExprMgr_and(exprs, sexp_state,
-                    find_node(nodemgr, OP_NEXT, final_formula, Nil));
+      if (ExprMgr_is_true(exprs, final_formula)) {
+        final_formula = sexp_state;
+      }
+      else {
+        /* state_ith & X (final_formula) */
+        final_formula =
+          ExprMgr_and(exprs, sexp_state,
+                      find_node(nodemgr, OP_NEXT, final_formula, Nil));
+      }
     }
 
     /* restore the state_sexp_list */
