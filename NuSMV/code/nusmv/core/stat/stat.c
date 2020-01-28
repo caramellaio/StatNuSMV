@@ -64,11 +64,14 @@ typedef boolean (*RandomVariable)(const NuSMVEnv_ptr, const Prop_ptr);
 
 /* Single simulation verification functions */
 static boolean verify_single_simulation(const NuSMVEnv_ptr env,
-                                        const Prop_ptr ltl_prop);
+                                        const Prop_ptr ltl_prop,
+                                        const char* env_stat_prob_gen);
 
-static boolean verify_single_simulation_bounded(const NuSMVEnv_ptr env,
-                                                const Prop_ptr ltl_prop);
+static boolean verify_single_simulation_ltl(const NuSMVEnv_ptr env,
+                                            const Prop_ptr ltl_prop);
 
+static boolean verify_single_simulation_bmc(const NuSMVEnv_ptr env,
+                                            const Prop_ptr ltl_prop);
 /* Statistical algorithm functions */
 static double Stat_approximate(const NuSMVEnv_ptr env,
                                const Prop_ptr prop_problem,
@@ -92,7 +95,7 @@ int Stat_check_ltlspec(const NuSMVEnv_ptr env,
                        double *res)
 {
   *res = Stat_approximate(env, prop, error_level, confidence_level,
-                          &verify_single_simulation);
+                          &verify_single_simulation_ltl);
 
   return 0;
 }
@@ -104,7 +107,7 @@ int Stat_check_ltlspec_bmc(const NuSMVEnv_ptr env,
                            double *res)
 {
   *res = Stat_approximate(env, prop, error_level, confidence_level,
-                          &verify_single_simulation_bounded);
+                          &verify_single_simulation_bmc);
 
   return 0;
 }
@@ -193,14 +196,21 @@ static double Stat_stopping_rule_alg(const NuSMVEnv_ptr env,
   return mu_hat_Z;
 }
 
-static boolean verify_single_simulation_bounded(const NuSMVEnv_ptr env,
-                                                const Prop_ptr ltl_prop)
+static boolean verify_single_simulation_ltl(const NuSMVEnv_ptr env,
+                                            const Prop_ptr ltl_prop)
 {
-  error_unreachable_code_msg("Not yet implemented\n");
+  return verify_single_simulation(env, ltl_prop, ENV_STAT_PROB_GEN);
+}
+
+static boolean verify_single_simulation_bmc(const NuSMVEnv_ptr env,
+                                            const Prop_ptr ltl_prop)
+{
+  return verify_single_simulation(env, ltl_prop, ENV_STAT_PROB_GEN_BMC);
 }
 
 static boolean verify_single_simulation(const NuSMVEnv_ptr env,
-                                        const Prop_ptr ltl_prop)
+                                        const Prop_ptr ltl_prop,
+                                        const char* env_stat_prob_gen)
 {
   boolean retval;
   StatVericationResult res;
@@ -209,7 +219,7 @@ static boolean verify_single_simulation(const NuSMVEnv_ptr env,
     ERROR_MGR(NuSMVEnv_get_value(env, ENV_ERROR_MANAGER));
 
   StatProblemsGenerator_ptr prob_gen =
-    STAT_PROBLEMS_GENERATOR(NuSMVEnv_get_value(env, ENV_STAT_PROB_GEN));
+    STAT_PROBLEMS_GENERATOR(NuSMVEnv_get_value(env, env_stat_prob_gen));
 
   /* The property is prepared if it was not done before */
   if (ltl_prop != StatProblemsGenerator_get_prop(prob_gen)) {
