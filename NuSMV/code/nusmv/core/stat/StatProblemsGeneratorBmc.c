@@ -182,7 +182,8 @@ static StatTrace_ptr
       StatTrace_add_state(exec, state_sexp, false);
     }
 
-    nusmv_assert(StatTrace_get_length(exec) == get_opt_k(self_bmc));
+    /* k steps + initial state */
+    nusmv_assert(StatTrace_get_length(exec) == get_opt_k(self_bmc) + 1);
 
     StatTrace_force_loopback(exec, get_opt_k(self_bmc));
 
@@ -211,7 +212,8 @@ static StatVericationResult
   const Prop_ptr prop = StatProblemsGenerator_get_prop(gen);
   const StatProblemsGeneratorBmc_ptr self = STAT_PROBLEMS_GENERATOR_BMC(gen);
 
-  nusmv_assert(StatTrace_get_length(execution) == get_opt_k(self));
+  /* k steps + initial state */
+  nusmv_assert(StatTrace_get_length(execution) == get_opt_k(self) + 1);
 
   gen_prop = StatSexpProblem_gen_bmc_problem(env, execution, prop);
 
