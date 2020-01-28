@@ -80,6 +80,7 @@ void Stat_Pkg_quit(NuSMVEnv_ptr env)
   StatProblemsGeneratorBmc_destroy(b_pg);
 
   NuSMVEnv_remove_value(env, ENV_STAT_PROB_GEN);
+  NuSMVEnv_remove_value(env, ENV_STAT_PROB_GEN_BMC);
 }
 
 /*---------------------------------------------------------------------------*/
