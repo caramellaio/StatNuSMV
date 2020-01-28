@@ -119,7 +119,7 @@ int Stat_CommandCheckLtlspecBmc(NuSMVEnv_ptr env, int argc, char** argv)
   delta = STAT_CMD_DEFAULT_DELTA;
 
   util_getopt_reset();
-  while ((c = util_getopt(argc,argv,"hmo:n:p:P:d:e:")) != EOF) {
+  while ((c = util_getopt(argc,argv,"hmo:n:p:P:d:e:k:")) != EOF) {
 
     switch (c) {
     case 'h': return UsageStatCheckLtlspec(env);
@@ -132,6 +132,19 @@ int Stat_CommandCheckLtlspecBmc(NuSMVEnv_ptr env, int argc, char** argv)
         return 1;
       }
       break;
+    case 'k':
+      {
+        int k = atoi(util_optarg);
+
+        if (0 >= k) {
+          StreamMgr_print_error(streams, "K parameter should be > 0");
+        }
+        else {
+          set_bmc_pb_length(opts, k);
+        }
+
+        break;
+      }
     case 'e':
       epsilon = atof(util_optarg);
       if (0 >= epsilon || 1 <= epsilon) {
