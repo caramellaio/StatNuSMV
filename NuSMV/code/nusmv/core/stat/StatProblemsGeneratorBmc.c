@@ -253,7 +253,8 @@ static inline int get_opt_loop(const StatProblemsGeneratorBmc_ptr self)
 
   const char* pb_loop = get_bmc_pb_loop(opts);
 
-  return Bmc_Utils_ConvertLoopFromString(pb_loop, NULL);
+  return Bmc_Utils_GetNoLoopback();
+  // return Bmc_Utils_ConvertLoopFromString(pb_loop, NULL);
 }
 
 static inline int get_opt_k(const StatProblemsGeneratorBmc_ptr self)
