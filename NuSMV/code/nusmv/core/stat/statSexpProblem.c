@@ -228,3 +228,40 @@ Prop_ptr StatSexpProblem_gen_single_state_problem(const NuSMVEnv_ptr env,
 
   return Prop_create_partial(env, final_formula, Prop_Ltl);
 }
+
+Prop_ptr StatSexpProblem_gen_bmc_problem(const NuSMVEnv_ptr env,
+                                         const StatTrace_ptr execution,
+                                         const Prop_ptr prop)
+{
+  const NodeMgr_ptr nodemgr = NODE_MGR(NuSMVEnv_get_value(env, ENV_NODE_MGR));
+  const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+
+
+  Expr_ptr final_formula = ExprMgr_true(exprs);
+
+  nusmv_assert(Prop_get_type(prop) == Prop_Ltl);
+
+  {
+    ListIter_ptr iter;
+    int counter_val = 1;
+
+    NodeList_ptr state_sexp_list = StatTrace_get_sexp_states(execution);
+
+    /* we start computing from the last state to the first one */
+    NodeList_reverse(state_sexp_list);
+
+    NODE_LIST_FOREACH(state_sexp_list, iter) {
+      Expr_ptr sexp_state = NodeList_get_elem_at(state_sexp_list, iter);
+
+      /* state_ith & X (final_formula) */
+      final_formula =
+        ExprMgr_and(exprs, sexp_state,
+                    find_node(nodemgr, OP_NEXT, final_formula, Nil));
+    }
+
+    /* restore the state_sexp_list */
+    NodeList_reverse(state_sexp_list);
+  }
+
+  return Prop_create_partial(env, final_formula, Prop_Ltl);
+}

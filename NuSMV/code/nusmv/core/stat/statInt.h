@@ -66,4 +66,7 @@ Prop_ptr StatSexpProblem_gen_single_state_problem(const NuSMVEnv_ptr env,
                                                   const StatTrace_ptr execution,
                                                   const Prop_ptr prop);
 
+Prop_ptr StatSexpProblem_gen_bmc_problem(const NuSMVEnv_ptr env,
+                                         const StatTrace_ptr execution,
+                                         const Prop_ptr prop);
 #endif /* __NUSMV_CORE_STAT_STAT_INT_H__ */
