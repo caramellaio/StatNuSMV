@@ -28,7 +28,7 @@
 
 /*!
   \author Alberto Bombardelli
-  \brief Private and protected interface of class 'StatProblemsGenerator'
+  \brief Private and protected interface of class 'StatProblemsGeneratorBmc'
 
   This file can be included only by derived and friend classes
 
@@ -36,61 +36,44 @@
 
 
 
-#ifndef __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_PRIVATE_H__
-#define __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_PRIVATE_H__
+#ifndef __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_BMC_PRIVATE_H__
+#define __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_BMC_PRIVATE_H__
 /* parent class */
-#include "nusmv/core/utils/EnvObject.h"
-#include "nusmv/core/utils/EnvObject_private.h"
+#include "nusmv/core/stat/StatProblemsGenerator.h"
+#include "nusmv/core/stat/StatProblemsGenerator_private.h"
 
 /* Include used types */
 #include "nusmv/core/utils/Olist.h"
 #include "nusmv/core/prop/Prop.h"
 
 /* include public header */
-#include "nusmv/core/stat/StatProblemsGenerator.h"
+#include "nusmv/core/stat/StatProblemsGeneratorBmc.h"
 
-typedef struct StatProblemsGenerator_TAG
+typedef struct StatProblemsGeneratorBmc_TAG
 {
   /* this MUST stay on the top */
-  INHERITS_FROM(EnvObject);
+  INHERITS_FROM(StatProblemsGenerator);
 
   /* -------------------------------------------------- */
   /*                  Private members                   */
   /* -------------------------------------------------- */
-  /* exections hash maps: node_ptr -> StatTrace_ptr */
-  hash_ptr executions_assoc;
-  /* list containing the executions Olist<StatTrace_ptr> */
-  Olist_ptr executions_list;
-
-  /* Property to be verified */
-  Prop_ptr prop;
-
-  /* counter var name (used to construct the problem) */
-  Expr_ptr counter_var;
-
-  /* technique used to perform the executions verification */
-  StatVerificationMethod verification_method;
+  /* fixed length for the simulation */
+  int k;
 
   /* -------------------------------------------------- */
   /*                  Virtual methods                   */
   /* -------------------------------------------------- */
-  /* function to perform a single step simulation */
-  SimulFun simulate;
 
-  /* function used to generate an unique key from a StatTrace */
-  HashKeyFun gen_key;
-} StatProblemsGenerator;
+} StatProblemsGeneratorBmc;
 
 /* ---------------------------------------------------------------------- */
 /* Private methods to be used by derivated and friend classes only         */
 /* ---------------------------------------------------------------------- */
 
-void stat_problems_generator_init(StatProblemsGenerator_ptr self,
-                                  const NuSMVEnv_ptr env);
+void stat_problems_generator_bmc_init(StatProblemsGeneratorBmc_ptr self,
+                                      const NuSMVEnv_ptr env,
+                                      const int k);
 
-void stat_problems_generator_deinit(StatProblemsGenerator_ptr self);
-
-StatVericationResult
-  stat_problems_generator_verify_step(const StatProblemsGenerator_ptr self);
+void stat_problems_generator_bmc_deinit(StatProblemsGeneratorBmc_ptr self);
 #endif /* __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_PRIVATE_H__ */
 

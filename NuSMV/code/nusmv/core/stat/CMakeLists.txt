@@ -3,6 +3,7 @@ set(SRCS
   statPkg.c
   StatTrace.c
   StatProblemsGenerator.c
+  StatProblemsGeneratorBmc.c
   statSexpProblem.c
   )
 
@@ -13,4 +14,5 @@ nusmv_add_pkg_headers(
   statInt.h
   StatTrace.h
   StatProblemsGenerator.h
+  StatProblemsGeneratorBmc.h
   )

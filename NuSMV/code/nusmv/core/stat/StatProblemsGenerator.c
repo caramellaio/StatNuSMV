@@ -44,7 +44,6 @@
 
 /* Trace are required to collect steps from the simulation */
 #include "nusmv/core/trace/Trace.h"
-#include "nusmv/core/trace/Trace.h"
 #include "nusmv/core/trace/pkg_trace.h"
 
 /*---------------------------------------------------------------------------*/
@@ -77,9 +76,6 @@
 /* Static function prototypes                                                */
 /*---------------------------------------------------------------------------*/
 
-static StatVericationResult
-  stat_problems_generator_verify_step(const StatProblemsGenerator_ptr self);
-
 static StatTrace_ptr
   stat_problems_generator_simulate(StatProblemsGenerator_ptr self);
 
@@ -89,9 +85,11 @@ static StatVericationResult
 
 static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
                                                 const StatTrace_ptr exec);
+
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
+
 StatProblemsGenerator_ptr StatProblemsGenerator_create(const NuSMVEnv_ptr env)
 {
   StatProblemsGenerator_ptr self = ALLOC(StatProblemsGenerator, 1);
@@ -195,11 +193,8 @@ void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
 
   self->verification_method = STAT_INVALID_VERIFICATION;
 }
-/*---------------------------------------------------------------------------*/
-/* Definition of static functions                                            */
-/*---------------------------------------------------------------------------*/
 
-static StatVericationResult
+StatVericationResult
   stat_problems_generator_verify_step(const StatProblemsGenerator_ptr self)
 {
   StatTrace_ptr new_exec = self->simulate(self);
@@ -221,6 +216,11 @@ static StatVericationResult
 
   return res;
 }
+
+/*---------------------------------------------------------------------------*/
+/* Definition of static functions                                            */
+/*---------------------------------------------------------------------------*/
+
 
 static StatVericationResult
   stat_problems_generator_verify_execution(const StatProblemsGenerator_ptr self,

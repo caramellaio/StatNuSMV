@@ -138,6 +138,15 @@ int StatTrace_get_loopback(const StatTrace_ptr self);
 
 /*!
   \methodof StatTrace
+  \brief Force loopback
+
+  set self->loopback = loopback and set generated as true.
+*/
+void StatTrace_force_loopback(StatTrace_ptr self,
+                              const int loopback);
+
+/*!
+  \methodof StatTrace
   \brief Remove the trace loopback and the generated flag
 
 */

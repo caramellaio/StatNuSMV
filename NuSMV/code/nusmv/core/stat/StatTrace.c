@@ -160,6 +160,15 @@ int StatTrace_get_length(const StatTrace_ptr self)
 
   return NodeList_get_length(self->sexp_state_list);
 }
+
+void StatTrace_force_loopback(StatTrace_ptr self,
+                              const int loopback)
+{
+  STAT_TRACE_CHECK_INSTANCE(self);
+
+  self->loopback = loopback;
+  self->generated = true;
+}
 /*---------------------------------------------------------------------------*/
 /* Definition of internal functions                                          */
 /*---------------------------------------------------------------------------*/
