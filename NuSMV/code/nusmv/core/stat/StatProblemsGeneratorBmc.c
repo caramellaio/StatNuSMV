@@ -82,6 +82,8 @@ static StatVericationResult
   stat_problems_generator_bmc_verify_execution(const StatProblemsGenerator_ptr gen,
                                                const StatTrace_ptr execution);
 
+static Expr_ptr dummy_gen_key(const NuSMVEnv_ptr env,
+                              const StatTrace_ptr exec);
 static inline int get_opt_loop(const StatProblemsGeneratorBmc_ptr self);
 static inline int get_opt_k(const StatProblemsGeneratorBmc_ptr self);
 /*---------------------------------------------------------------------------*/
@@ -132,6 +134,9 @@ void stat_problems_generator_bmc_init(StatProblemsGeneratorBmc_ptr self,
   /* use bmc problem generator */
   OVERRIDE(StatProblemsGenerator, verify_execution) =
     stat_problems_generator_bmc_verify_execution;
+
+  /* this function returns a different value on each execution */
+  OVERRIDE(StatProblemsGenerator, gen_key) = dummy_gen_key;
 }
 
 void stat_problems_generator_bmc_deinit(StatProblemsGeneratorBmc_ptr self)
@@ -260,6 +265,17 @@ static inline int get_opt_k(const StatProblemsGeneratorBmc_ptr self)
   return get_bmc_pb_length(opts);
 }
 
+static Expr_ptr dummy_gen_key(const NuSMVEnv_ptr env,
+                              const StatTrace_ptr exec)
+{
+  static int counter = 0;
+  const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+
+  counter++;
+
+  /* TODO[AB]: using a counter is not a good idea */
+  return ExprMgr_number(exprs, counter);
+}
 /**AutomaticEnd***************************************************************/
 
 
