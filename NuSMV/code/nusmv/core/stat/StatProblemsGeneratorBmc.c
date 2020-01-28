@@ -82,17 +82,17 @@ static StatVericationResult
   stat_problems_generator_bmc_verify_execution(const StatProblemsGenerator_ptr gen,
                                                const StatTrace_ptr execution);
 
-static inline int opts_loop(const StatProblemsGeneratorBmc_ptr self);
+static inline int get_opt_loop(const StatProblemsGeneratorBmc_ptr self);
+static inline int get_opt_k(const StatProblemsGeneratorBmc_ptr self);
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
 
-StatProblemsGeneratorBmc_ptr StatProblemsGeneratorBmc_create(const NuSMVEnv_ptr env,
-                                                             const int k)
+StatProblemsGeneratorBmc_ptr StatProblemsGeneratorBmc_create(const NuSMVEnv_ptr env)
 {
   StatProblemsGeneratorBmc_ptr self = ALLOC(StatProblemsGeneratorBmc, 1);
 
-  stat_problems_generator_bmc_init(self, env, k);
+  stat_problems_generator_bmc_init(self, env);
 
   return self;
 }
@@ -105,12 +105,19 @@ void StatProblemsGeneratorBmc_destroy(StatProblemsGeneratorBmc_ptr self)
 
   FREE(self);
 }
+
+int StatProblemsGeneratorBmc_get_k(const StatProblemsGeneratorBmc_ptr self)
+{
+  STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
+
+  return get_opt_k(self);
+}
+
 /*---------------------------------------------------------------------------*/
 /* Definition of internal functions                                          */
 /*---------------------------------------------------------------------------*/
 void stat_problems_generator_bmc_init(StatProblemsGeneratorBmc_ptr self,
-                                      const NuSMVEnv_ptr env,
-                                      const int k)
+                                      const NuSMVEnv_ptr env)
 {
   stat_problems_generator_init(STAT_PROBLEMS_GENERATOR(self), env);
 
@@ -125,8 +132,6 @@ void stat_problems_generator_bmc_init(StatProblemsGeneratorBmc_ptr self,
   /* use bmc problem generator */
   OVERRIDE(StatProblemsGenerator, verify_execution) =
     stat_problems_generator_bmc_verify_execution;
-
-  self->k = k;
 }
 
 void stat_problems_generator_bmc_deinit(StatProblemsGeneratorBmc_ptr self)
@@ -217,7 +222,7 @@ static StatVericationResult
   retval = STAT_NOT_VERIFIED;
 
   /* Call BMC internal functions... */
-  res = Bmc_GenSolveLtl(env, gen_prop, self->k, opts_loop(self),
+  res = Bmc_GenSolveLtl(env, gen_prop, get_opt_k(self), get_opt_loop(self),
                         true, true, BMC_DUMP_NONE, NULL);
 
   if (0 != res) {
@@ -235,7 +240,7 @@ static StatVericationResult
   return retval;
 }
 
-static inline int opts_loop(const StatProblemsGeneratorBmc_ptr self)
+static inline int get_opt_loop(const StatProblemsGeneratorBmc_ptr self)
 {
   const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
   const OptsHandler_ptr opts =
@@ -244,6 +249,15 @@ static inline int opts_loop(const StatProblemsGeneratorBmc_ptr self)
   const char* pb_loop = get_bmc_pb_loop(opts);
 
   return Bmc_Utils_ConvertLoopFromString(pb_loop, NULL);
+}
+
+static inline int get_opt_k(const StatProblemsGeneratorBmc_ptr self)
+{
+  const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
+  const OptsHandler_ptr opts =
+    OPTS_HANDLER(NuSMVEnv_get_value(env, ENV_OPTS_HANDLER));
+
+  return get_bmc_pb_length(opts);
 }
 
 /**AutomaticEnd***************************************************************/

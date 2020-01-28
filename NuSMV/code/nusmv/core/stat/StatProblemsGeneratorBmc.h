@@ -82,8 +82,7 @@ typedef struct StatProblemsGeneratorBmc_TAG*  StatProblemsGeneratorBmc_ptr;
 
   \sa StatProblemsGenerator_destroy
 */
-StatProblemsGeneratorBmc_ptr StatProblemsGeneratorBmc_create(const NuSMVEnv_ptr env,
-                                                             const int k);
+StatProblemsGeneratorBmc_ptr StatProblemsGeneratorBmc_create(const NuSMVEnv_ptr env);
 
 /* Destructors ****************************************************************/
 

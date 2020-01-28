@@ -71,8 +71,7 @@ typedef struct StatProblemsGeneratorBmc_TAG
 /* ---------------------------------------------------------------------- */
 
 void stat_problems_generator_bmc_init(StatProblemsGeneratorBmc_ptr self,
-                                      const NuSMVEnv_ptr env,
-                                      const int k);
+                                      const NuSMVEnv_ptr env);
 
 void stat_problems_generator_bmc_deinit(StatProblemsGeneratorBmc_ptr self);
 #endif /* __NUSMV_CORE_STAT_STAT_PROBLEM_GENERATOR_PRIVATE_H__ */
