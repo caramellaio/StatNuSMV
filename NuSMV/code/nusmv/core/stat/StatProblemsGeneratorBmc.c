@@ -35,6 +35,9 @@
 #include "nusmv/core/stat/StatProblemsGeneratorBmc.h"
 #include "nusmv/core/stat/StatProblemsGeneratorBmc_private.h"
 
+/* stat sexp problem generation */
+#include "nusmv/core/stat/statInt.h"
+
 /* Used to perform random simulation */
 #include "nusmv/core/simulate/simulate.h"
 
@@ -42,6 +45,10 @@
 #include "nusmv/core/trace/Trace.h"
 #include "nusmv/core/trace/pkg_trace.h"
 
+/* used for bmc verification */
+#include "nusmv/core/bmc/bmcDump.h"
+#include "nusmv/core/bmc/bmcBmc.h"
+#include "nusmv/core/bmc/bmc.h"
 /*---------------------------------------------------------------------------*/
 /* Constant declarations                                                     */
 /*---------------------------------------------------------------------------*/
@@ -70,6 +77,12 @@
 
 static StatTrace_ptr
   stat_problems_generator_bmc_simulate(StatProblemsGenerator_ptr self);
+
+static StatVericationResult
+  stat_problems_generator_bmc_verify_execution(const StatProblemsGenerator_ptr gen,
+                                               const StatTrace_ptr execution);
+
+static inline int opts_loop(const StatProblemsGeneratorBmc_ptr self);
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
@@ -105,9 +118,13 @@ void stat_problems_generator_bmc_init(StatProblemsGeneratorBmc_ptr self,
   StatProblemsGenerator_set_verification_method(STAT_PROBLEMS_GENERATOR(self),
                                                 STAT_BMC_VERIFICATION_FIXED_K);
 
-  /* use bmc simulation */
+  /* use fixed simulation */
   OVERRIDE(StatProblemsGenerator, simulate) =
     stat_problems_generator_bmc_simulate;
+
+  /* use bmc problem generator */
+  OVERRIDE(StatProblemsGenerator, verify_execution) =
+    stat_problems_generator_bmc_verify_execution;
 
   self->k = k;
 }
@@ -173,6 +190,60 @@ static StatTrace_ptr
   }
 
   return exec;
+}
+
+static StatVericationResult
+  stat_problems_generator_bmc_verify_execution(const StatProblemsGenerator_ptr gen,
+                                               const StatTrace_ptr execution)
+{
+  Prop_ptr gen_prop;
+  StatVericationResult retval;
+  int res;
+  int relative_loop;
+
+  const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(gen));
+  const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+  const NodeMgr_ptr nodemgr = NODE_MGR(NuSMVEnv_get_value(env, ENV_NODE_MGR));
+
+  const Prop_ptr prop = StatProblemsGenerator_get_prop(gen);
+  const StatProblemsGeneratorBmc_ptr self = STAT_PROBLEMS_GENERATOR_BMC(gen);
+
+  nusmv_assert(StatTrace_get_length(execution) == self->k);
+
+  gen_prop = StatSexpProblem_gen_bmc_problem(env, execution, prop);
+
+  nusmv_assert(STAT_BMC_VERIFICATION_FIXED_K == gen->verification_method);
+
+  retval = STAT_NOT_VERIFIED;
+
+  /* Call BMC internal functions... */
+  res = Bmc_GenSolveLtl(env, gen_prop, self->k, opts_loop(self),
+                        true, true, BMC_DUMP_NONE, NULL);
+
+  if (0 != res) {
+    retval = STAT_INTERNAL_ERROR;
+  }
+  else if (0 == Prop_get_trace(gen_prop)) {
+    retval = STAT_OK;
+  }
+  else {
+    retval = STAT_NOT_OK;
+  }
+
+  Prop_destroy(gen_prop);
+
+  return retval;
+}
+
+static inline int opts_loop(const StatProblemsGeneratorBmc_ptr self)
+{
+  const NuSMVEnv_ptr env = EnvObject_get_environment(ENV_OBJECT(self));
+  const OptsHandler_ptr opts =
+    OPTS_HANDLER(NuSMVEnv_get_value(env, ENV_OPTS_HANDLER));
+
+  const char* pb_loop = get_bmc_pb_loop(opts);
+
+  return Bmc_Utils_ConvertLoopFromString(pb_loop, NULL);
 }
 
 /**AutomaticEnd***************************************************************/
