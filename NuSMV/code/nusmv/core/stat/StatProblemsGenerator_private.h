@@ -79,6 +79,9 @@ typedef struct StatProblemsGenerator_TAG
 
   /* function used to generate an unique key from a StatTrace */
   HashKeyFun gen_key;
+
+  /* function used to verify a single execution */
+  VerifFun verify_execution;
 } StatProblemsGenerator;
 
 /* ---------------------------------------------------------------------- */

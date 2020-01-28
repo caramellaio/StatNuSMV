@@ -65,6 +65,9 @@ typedef enum StatVerificationMethod_TAG {
   STAT_BMC_VERIFICATION_FIXED_K,
   STAT_BMC_VERIFICATION_NON_FIXED_K
 } StatVerificationMethod;
+
+typedef StatVericationResult (*VerifFun)(const StatProblemsGenerator_ptr,
+                                         const StatTrace_ptr);
 /*!
   \brief To cast and check instances of class StatProblemsGenerator
 

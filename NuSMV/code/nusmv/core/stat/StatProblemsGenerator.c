@@ -170,6 +170,7 @@ void stat_problems_generator_init(StatProblemsGenerator_ptr self,
 
   OVERRIDE(StatProblemsGenerator, gen_key) = stat_problems_generator_gen_key;
   OVERRIDE(StatProblemsGenerator, simulate) = stat_problems_generator_simulate;
+  OVERRIDE(StatProblemsGenerator, verify_execution) = stat_problems_generator_verify_execution;
 }
 
 void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
@@ -200,8 +201,7 @@ StatVericationResult
   StatTrace_ptr new_exec = self->simulate(self);
   Expr_ptr new_exec_key = self->gen_key(STAT_ENV(self), new_exec);
 
-  StatVericationResult res =
-    stat_problems_generator_verify_execution(self, new_exec);
+  StatVericationResult res = self->verify_execution(self, new_exec);
 
   /* We assume that it is not possible to verify twice the same execution */
   nusmv_assert(STAT_NOT_VERIFIED ==
