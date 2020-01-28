@@ -86,6 +86,7 @@ static StatVericationResult
 static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
                                                 const StatTrace_ptr exec);
 
+static void deinit_executions(StatProblemsGenerator_ptr self);
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
@@ -113,8 +114,11 @@ void StatProblemsGenerator_prepare_property(StatProblemsGenerator_ptr self,
 {
   STAT_PROBLEMS_GENERATOR_CHECK_INSTANCE(self);
 
-  stat_problems_generator_deinit(self);
-  stat_problems_generator_init(self, STAT_ENV(self));
+  deinit_executions(self);
+  /* We do not call init since it overrides simulate and verify... */
+  self->executions_assoc = new_assoc();
+  self->executions_list = Olist_create();
+
   self->prop = property;
 }
 
@@ -175,22 +179,9 @@ void stat_problems_generator_init(StatProblemsGenerator_ptr self,
 
 void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
 {
-  Oiter oiter;
-
   env_object_deinit(ENV_OBJECT(self));
 
-  OLIST_FOREACH(self->executions_list, oiter) {
-    StatTrace_ptr execution = STAT_TRACE(Oiter_element(oiter));
-
-    StatTrace_destroy(execution);
-  }
-
-  Olist_destroy(self->executions_list); self->executions_list = NULL;
-
-  self->counter_var = Nil;
-
-  /* no need to destroy hash_ptr elements since they were destroyed before */
-  free_assoc(self->executions_assoc); self->executions_assoc = NULL;
+  deinit_executions(self);
 
   self->verification_method = STAT_INVALID_VERIFICATION;
 }
@@ -395,5 +386,23 @@ static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
   retval = MasterNormalizer_normalize_node(master_norm, retval);
 
   return retval;
+}
+
+static void deinit_executions(StatProblemsGenerator_ptr self)
+{
+  Oiter oiter;
+
+  OLIST_FOREACH(self->executions_list, oiter) {
+    StatTrace_ptr execution = STAT_TRACE(Oiter_element(oiter));
+
+    StatTrace_destroy(execution);
+  }
+
+  Olist_destroy(self->executions_list); self->executions_list = NULL;
+
+  self->counter_var = Nil;
+
+  /* no need to destroy hash_ptr elements since they were destroyed before */
+  free_assoc(self->executions_assoc); self->executions_assoc = NULL;
 }
 /**AutomaticEnd***************************************************************/

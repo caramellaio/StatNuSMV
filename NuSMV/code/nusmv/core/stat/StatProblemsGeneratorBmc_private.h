@@ -57,8 +57,6 @@ typedef struct StatProblemsGeneratorBmc_TAG
   /* -------------------------------------------------- */
   /*                  Private members                   */
   /* -------------------------------------------------- */
-  /* fixed length for the simulation */
-  int k;
 
   /* -------------------------------------------------- */
   /*                  Virtual methods                   */

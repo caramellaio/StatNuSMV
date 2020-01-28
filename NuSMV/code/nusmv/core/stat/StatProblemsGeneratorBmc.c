@@ -137,8 +137,6 @@ void stat_problems_generator_bmc_init(StatProblemsGeneratorBmc_ptr self,
 void stat_problems_generator_bmc_deinit(StatProblemsGeneratorBmc_ptr self)
 {
   stat_problems_generator_deinit(STAT_PROBLEMS_GENERATOR(self));
-
-  self->k = -1;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -168,8 +166,8 @@ static StatTrace_ptr
     const Trace_ptr curr_trace = TraceMgr_get_trace_at_index(tm, trace_id);
 
     /* launch random simulation of length k */
-    int status = Simulate_simulate(env, false, Random, self_bmc->k, 0,
-                                   false, false, bdd_true(dd));
+    int status = Simulate_simulate(env, false, Random, get_opt_k(self_bmc),
+                                   0, false, false, bdd_true(dd));
 
     if (0 != status) {
       error_unreachable_code_msg("Error handling not yet implemented!!!\n");
@@ -184,9 +182,9 @@ static StatTrace_ptr
       StatTrace_add_state(exec, state_sexp, false);
     }
 
-    nusmv_assert(StatTrace_get_length(exec) == self_bmc->k);
+    nusmv_assert(StatTrace_get_length(exec) == get_opt_k(self_bmc));
 
-    StatTrace_force_loopback(exec, self_bmc->k);
+    StatTrace_force_loopback(exec, get_opt_k(self_bmc));
 
     nusmv_assert(StatTrace_is_generated(exec));
   }
@@ -213,7 +211,7 @@ static StatVericationResult
   const Prop_ptr prop = StatProblemsGenerator_get_prop(gen);
   const StatProblemsGeneratorBmc_ptr self = STAT_PROBLEMS_GENERATOR_BMC(gen);
 
-  nusmv_assert(StatTrace_get_length(execution) == self->k);
+  nusmv_assert(StatTrace_get_length(execution) == get_opt_k(self));
 
   gen_prop = StatSexpProblem_gen_bmc_problem(env, execution, prop);
 
