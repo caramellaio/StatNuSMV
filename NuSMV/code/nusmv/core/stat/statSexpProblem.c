@@ -263,5 +263,8 @@ Prop_ptr StatSexpProblem_gen_bmc_problem(const NuSMVEnv_ptr env,
     NodeList_reverse(state_sexp_list);
   }
 
+  /* states implies property */
+  final_formula =
+    ExprMgr_implies(exprs, final_formula, Prop_get_expr_core(prop));
   return Prop_create_partial(env, final_formula, Prop_Ltl);
 }
