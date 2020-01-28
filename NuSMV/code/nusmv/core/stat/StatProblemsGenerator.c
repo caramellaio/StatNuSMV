@@ -183,6 +183,7 @@ void stat_problems_generator_deinit(StatProblemsGenerator_ptr self)
 
   deinit_executions(self);
 
+  self->counter_var = Nil;
   self->verification_method = STAT_INVALID_VERIFICATION;
 }
 
@@ -399,8 +400,6 @@ static void deinit_executions(StatProblemsGenerator_ptr self)
   }
 
   Olist_destroy(self->executions_list); self->executions_list = NULL;
-
-  self->counter_var = Nil;
 
   /* no need to destroy hash_ptr elements since they were destroyed before */
   free_assoc(self->executions_assoc); self->executions_assoc = NULL;
