@@ -545,16 +545,17 @@ void Ltl_StructCheckLtlSpec_explain(Ltl_StructCheckLtlSpec_ptr self,
 
   trace = Ltl_StructCheckLtlSpec_build_counter_example(self, symbols);
 
+  (void)TraceMgr_register_trace(tm, trace);
+  if (StreamMgr_get_output_stream(streams)) {
   StreamMgr_print_output(streams,
           "-- as demonstrated by the following execution sequence\n");
 
-  (void)TraceMgr_register_trace(tm, trace);
 
   /* TODO[MD] here the error status is not considered */
   (void)TraceMgr_execute_plugin(tm, TRACE_OPT(NULL),
                                 TRACE_MGR_DEFAULT_PLUGIN,
                                 TRACE_MGR_LAST_TRACE);
-
+  }
   Prop_set_trace(self->prop, Trace_get_id(trace));
 }
 

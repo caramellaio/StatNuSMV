@@ -220,12 +220,14 @@ static StatVericationResult
 {
   StatVericationResult res = STAT_INTERNAL_ERROR;
   const NuSMVEnv_ptr env = STAT_ENV(self);
+  const StreamMgr_ptr streams = STREAM_MGR(NuSMVEnv_get_value(env, ENV_STREAM_MANAGER));
   SymbTable_ptr symb_table = SYMB_TABLE(NuSMVEnv_get_value(env, ENV_SYMB_TABLE));
 
   Prop_ptr to_verify = NULL;
   SymbLayer_ptr layer = NULL;
   int k = StatTrace_get_length(execution);
 
+  FILE * f = StreamMgr_reset_output_stream(streams);
   nusmv_assert(0 < k);
 
 
@@ -268,6 +270,7 @@ static StatVericationResult
     layer = NULL;
   }
 
+  StreamMgr_set_output_stream(streams, f);
   return res;
 }
 
