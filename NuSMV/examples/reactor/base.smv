@@ -161,6 +161,8 @@ init(opstep) := 0;
 FAIRNESS
 !again
 
+LTLSPEC
+G F (step = 0)
 SPEC
 AG AF (step = 0)
 

@@ -86,6 +86,8 @@ static StatVericationResult
 static Expr_ptr stat_problems_generator_gen_key(const NuSMVEnv_ptr env,
                                                 const StatTrace_ptr exec);
 
+static Expr_ptr dummy_gen_key(const NuSMVEnv_ptr env,
+                              const StatTrace_ptr exec);
 static void deinit_executions(StatProblemsGenerator_ptr self);
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
@@ -173,6 +175,7 @@ void stat_problems_generator_init(StatProblemsGenerator_ptr self,
     SymbTable_get_fresh_symbol_name(st, STAT_COUNTER_VAR_NAME);
 
   OVERRIDE(StatProblemsGenerator, gen_key) = stat_problems_generator_gen_key;
+  OVERRIDE(StatProblemsGenerator, gen_key) = dummy_gen_key;
   OVERRIDE(StatProblemsGenerator, simulate) = stat_problems_generator_simulate;
   OVERRIDE(StatProblemsGenerator, verify_execution) = stat_problems_generator_verify_execution;
 }
@@ -406,5 +409,17 @@ static void deinit_executions(StatProblemsGenerator_ptr self)
 
   /* no need to destroy hash_ptr elements since they were destroyed before */
   free_assoc(self->executions_assoc); self->executions_assoc = NULL;
+}
+
+static Expr_ptr dummy_gen_key(const NuSMVEnv_ptr env,
+                              const StatTrace_ptr exec)
+{
+  static int counter = 0;
+  const ExprMgr_ptr exprs = EXPR_MGR(NuSMVEnv_get_value(env, ENV_EXPR_MANAGER));
+
+  counter++;
+
+  /* TODO[AB]: using a counter is not a good idea */
+  return ExprMgr_number(exprs, counter);
 }
 /**AutomaticEnd***************************************************************/
